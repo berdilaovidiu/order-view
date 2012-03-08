@@ -1,11 +1,13 @@
 package view;
 
-import model.OrderField;
-import model.OrderImage;
-
-import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
+import javax.swing.Timer;
+import model.OrderField;
+import model.OrderImage;
 
 /**
  * Created by IntelliJ IDEA.
@@ -23,7 +25,7 @@ public class TestOrderView {
                 JPanel panel = new JPanel();
                 panel.setLayout(null);
                 frame.setContentPane(panel);
-                
+
                 final OrderImage orderImage = new OrderImage();
                 orderImage.setField(OrderField.QUANTITY, new Double(500));
                 orderImage.setField(OrderField.FILLED_QUANTITY, new Double(100));
@@ -31,7 +33,7 @@ public class TestOrderView {
 
                 panel.add(comp1);
                 comp1.setLocation(100, 100);
-                comp1.setSize(15, 15);
+                comp1.setSize(100, 100);
 
 
                 Timer timer = new Timer(1000, new ActionListener() {
@@ -42,7 +44,7 @@ public class TestOrderView {
                     }
                 });
                 timer.start();
-                
+
                 frame.setSize(400, 400);
                 frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
                 frame.setVisible(true);

@@ -1,9 +1,9 @@
 package view;
 
+import javax.swing.JFrame;
+import javax.swing.SwingUtilities;
 import model.Model;
 import simulator.OrderGenerator;
-
-import javax.swing.*;
 
 /**
  * Created by IntelliJ IDEA.
@@ -13,7 +13,7 @@ import javax.swing.*;
  * To change this template use File | Settings | File Templates.
  */
 public class TestBirdsEyeView {
-    public static void main(String args[]){
+    public static void main(String args[]) {
         final BirdsEyeView view = new BirdsEyeView();
 
         Model model = new Model();

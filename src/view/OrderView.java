@@ -1,12 +1,17 @@
 package view;
 
-import model.OrderField;
-import model.OrderImage;
-
-import javax.swing.*;
-import java.awt.*;
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Point;
+import java.awt.RadialGradientPaint;
+import java.awt.RenderingHints;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import javax.swing.JComponent;
+import model.OrderField;
+import model.OrderImage;
 
 /**
  * Created by IntelliJ IDEA.
@@ -36,15 +41,15 @@ public class OrderView extends JComponent {
         g2d.setStroke(new BasicStroke(STROKE_SIZE));
 
         g2d.setPaint(new RadialGradientPaint(getWidth() / 2, getHeight() / 2, getWidth() / 2, new float[]{0.0f, 1.0f}, new Color[]{Color.cyan, COLOR_PENDING_QUANTITY}));
-        g2d.fillOval(STROKE_SIZE /2, STROKE_SIZE/2, getWidth() -STROKE_SIZE -1, getHeight()- STROKE_SIZE -1 );
+        g2d.fillOval(STROKE_SIZE / 2, STROKE_SIZE / 2, getWidth() - STROKE_SIZE - 1, getHeight() - STROKE_SIZE - 1);
 
         double percentage = getPercentageFilled();
         int percent = (int) (360 * percentage);
         g2d.setPaint(new RadialGradientPaint(getWidth() / 2, getHeight() / 2, getWidth() / 2, new float[]{0.0f, 1.0f}, new Color[]{Color.white, COLOR_FILLED_QUANTITY}));
-        g2d.fillArc(STROKE_SIZE/2, STROKE_SIZE/2, getWidth() - STROKE_SIZE -1, getHeight() - STROKE_SIZE -1, 90, -percent);
+        g2d.fillArc(STROKE_SIZE / 2, STROKE_SIZE / 2, getWidth() - STROKE_SIZE - 1, getHeight() - STROKE_SIZE - 1, 90, -percent);
 
         g2d.setColor(Color.BLACK);
-        g2d.drawOval(STROKE_SIZE/2, STROKE_SIZE/2, getWidth() - STROKE_SIZE -1, getHeight() -STROKE_SIZE -1);
+        g2d.drawOval(STROKE_SIZE / 2, STROKE_SIZE / 2, getWidth() - STROKE_SIZE - 1, getHeight() - STROKE_SIZE - 1);
     }
 
     private double getPercentageFilled() {
@@ -84,7 +89,7 @@ public class OrderView extends JComponent {
                 Point toolTipLocation = new Point();
                 toolTipLocation.setLocation(location.x, location.y - 80);
                 toolTip.setLocation(toolTipLocation);
-                toolTip.setSize(200, 70);
+                toolTip.setSize(300, 200);
             } else {
                 toolTip.setVisible(true);
             }
@@ -93,6 +98,8 @@ public class OrderView extends JComponent {
         @Override
         public void mouseExited(MouseEvent e) {
             toolTip.setVisible(false);
+            OrderView.this.repaint();
         }
     }
+
 }

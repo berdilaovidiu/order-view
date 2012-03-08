@@ -1,15 +1,30 @@
 package view;
 
+import java.awt.AlphaComposite;
+import java.awt.Color;
+import java.awt.Composite;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Point;
+import java.awt.Rectangle;
+import java.awt.RenderingHints;
+import java.awt.Shape;
+import java.awt.geom.Arc2D;
+import java.awt.geom.Area;
+import java.awt.geom.Ellipse2D;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+import javax.swing.JPanel;
 import model.OrderField;
 import model.OrderImage;
 import model.OrderListener;
 import model.OrderState;
-
-import javax.swing.JPanel;
-import java.awt.*;
-import java.awt.geom.*;
-import java.util.*;
-import java.util.List;
 
 /**
  * Created by IntelliJ IDEA.

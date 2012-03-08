@@ -1,10 +1,11 @@
 package view;
 
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import javax.swing.JComponent;
 import model.OrderImage;
-
-import javax.swing.*;
-import java.awt.*;
-import java.awt.geom.Point2D;
 
 /**
  * Created by IntelliJ IDEA.
@@ -26,15 +27,21 @@ public class OrderToolTip extends JComponent {
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
         g2d.setColor(Color.lightGray);
-        g2d.fillRoundRect(0,0, getWidth()-1, getHeight()-1, 20, 20);
+        g2d.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 20, 20);
 
         g2d.setColor(Color.BLACK);
-        g2d.drawString(getOrderString(), 10, 10);
+        String orderString = getOrderString();
+        String[] tokens = orderString.split("\\n");
+        int hpos = 20;
+        for (String token : tokens) {
+            g2d.drawString(token, 10, hpos);
+            hpos +=20;
+        }
 
-        g2d.drawRoundRect(0,0, getWidth()-1, getHeight()-1 , 20, 20);
+        g2d.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 20, 20);
     }
-    
-    public String getOrderString(){
+
+    public String getOrderString() {
         return orderImage.toString();
     }
 }

@@ -37,4 +37,13 @@ public class OrderImage {
             fieldMap.put(field, value);
         }
     }
+
+    @Override
+    public String toString() {
+        StringBuilder result = new StringBuilder();
+        for (OrderField field : getFields()) {
+            result.append(field + " : " + getValue(field) + "\n");
+        }
+        return result.toString();
+    }
 }
