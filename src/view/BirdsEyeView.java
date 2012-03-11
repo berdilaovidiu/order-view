@@ -1,25 +1,19 @@
 package view;
 
+import model.OrderField;
+import model.OrderImage;
+import model.OrderListener;
+import model.OrderState;
+
+import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Arc2D;
 import java.awt.geom.Area;
 import java.awt.geom.Ellipse2D;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
-import javax.swing.*;
-
-import model.OrderField;
-import model.OrderImage;
-import model.OrderListener;
-import model.OrderState;
 
 /**
  * Created by IntelliJ IDEA.
