@@ -1,17 +1,10 @@
 package view;
 
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Point;
-import java.awt.RadialGradientPaint;
-import java.awt.RenderingHints;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import javax.swing.JComponent;
 import model.OrderField;
 import model.OrderImage;
+
+import javax.swing.*;
+import java.awt.*;
 
 /**
  * Created by IntelliJ IDEA.
@@ -26,12 +19,19 @@ public class OrderView extends JComponent {
     public static final int STROKE_SIZE = 1;
 
     private OrderImage orderImage;
+    private boolean mouseOver = false;
 
     public OrderView(final OrderImage orderImage) {
         this.orderImage = orderImage;
-        this.addMouseListener(new MouseListenerImpl());
     }
 
+    public boolean isMouseOver() {
+        return mouseOver;
+    }
+
+    public void setMouseOver(boolean mouseOver) {
+        this.mouseOver = mouseOver;
+    }
 
     @Override
     protected void paintComponent(Graphics g) {
@@ -50,6 +50,12 @@ public class OrderView extends JComponent {
 
         g2d.setColor(Color.BLACK);
         g2d.drawOval(STROKE_SIZE / 2, STROKE_SIZE / 2, getWidth() - STROKE_SIZE - 1, getHeight() - STROKE_SIZE - 1);
+
+        if(isMouseOver()){
+            g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER));
+            g2d.setPaint(new RadialGradientPaint(getWidth() / 2, getHeight() / 2, getWidth() / 2, new float[]{0.0f, 1.0f}, new Color[]{Color.white, Color.black}));
+            g2d.fillOval(STROKE_SIZE / 2, STROKE_SIZE / 2, getWidth() - STROKE_SIZE - 1, getHeight() - STROKE_SIZE - 1);
+        }
     }
 
     private double getPercentageFilled() {
@@ -61,45 +67,4 @@ public class OrderView extends JComponent {
     public OrderImage getOrderImage() {
         return orderImage;
     }
-
-    private class MouseListenerImpl implements MouseListener {
-        OrderToolTip toolTip = null;
-
-        @Override
-        public void mouseClicked(MouseEvent e) {
-            //To change body of implemented methods use File | Settings | File Templates.
-        }
-
-        @Override
-        public void mousePressed(MouseEvent e) {
-            //To change body of implemented methods use File | Settings | File Templates.
-        }
-
-        @Override
-        public void mouseReleased(MouseEvent e) {
-            //To change body of implemented methods use File | Settings | File Templates.
-        }
-
-        @Override
-        public void mouseEntered(MouseEvent e) {
-            if (toolTip == null) {
-                toolTip = new OrderToolTip(orderImage);
-                OrderView.this.getParent().add(toolTip);
-                Point location = OrderView.this.getLocation();
-                Point toolTipLocation = new Point();
-                toolTipLocation.setLocation(location.x, location.y - 80);
-                toolTip.setLocation(toolTipLocation);
-                toolTip.setSize(300, 200);
-            } else {
-                toolTip.setVisible(true);
-            }
-        }
-
-        @Override
-        public void mouseExited(MouseEvent e) {
-            toolTip.setVisible(false);
-            OrderView.this.repaint();
-        }
-    }
-
 }

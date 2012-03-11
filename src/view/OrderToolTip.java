@@ -1,9 +1,6 @@
 package view;
 
-import java.awt.Color;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
+import java.awt.*;
 import javax.swing.JComponent;
 import model.OrderImage;
 
@@ -25,7 +22,7 @@ public class OrderToolTip extends JComponent {
     protected void paintComponent(Graphics g) {
         Graphics2D g2d = (Graphics2D) g;
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
+        g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5f));
         g2d.setColor(Color.lightGray);
         g2d.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 20, 20);
 

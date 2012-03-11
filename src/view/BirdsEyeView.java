@@ -1,14 +1,8 @@
 package view;
 
-import java.awt.AlphaComposite;
-import java.awt.Color;
-import java.awt.Composite;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Point;
-import java.awt.Rectangle;
-import java.awt.RenderingHints;
-import java.awt.Shape;
+import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.geom.Arc2D;
 import java.awt.geom.Area;
 import java.awt.geom.Ellipse2D;
@@ -20,7 +14,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
-import javax.swing.JPanel;
+import javax.swing.*;
+
 import model.OrderField;
 import model.OrderImage;
 import model.OrderListener;
@@ -36,6 +31,7 @@ import model.OrderState;
 public class BirdsEyeView extends JPanel implements OrderListener {
     private static List<Color> colorList = Arrays.asList(Color.RED, Color.GREEN, Color.BLUE, Color.BLACK, Color.CYAN);
     private static Map<OrderState, Color> stateColorMap = new TreeMap<OrderState, Color>();
+    private Set<Shape> sectors = new HashSet<Shape>();
 
     static {
         stateColorMap.put(OrderState.REGISTERED, Color.BLUE.brighter().brighter());
@@ -49,7 +45,10 @@ public class BirdsEyeView extends JPanel implements OrderListener {
     private Map<Object, Shape> groupingSliceShapeMap = new TreeMap<Object, Shape>();
 
     public BirdsEyeView() {
-        setLayout(null);
+        setLayout(new BirdsEyeViewLayout());
+        MouseAdapterImpl mouseListener = new MouseAdapterImpl();
+        addMouseListener(mouseListener);
+        addMouseMotionListener(mouseListener);
     }
 
     public void addOrderView(OrderView orderView) {
@@ -57,6 +56,7 @@ public class BirdsEyeView extends JPanel implements OrderListener {
 //        orderView.setSize();
 //        orderView.setLocation();
         add(orderView);
+        revalidate();
         repaint();
     }
 
@@ -73,8 +73,15 @@ public class BirdsEyeView extends JPanel implements OrderListener {
 
     @Override
     protected void paintComponent(Graphics g) {
+        ((Graphics2D) g).setBackground(Color.white);
+        g.clearRect(0, 0, getWidth(), getHeight());
         drawStates(g);
         drawSlices(g);
+//        for(Shape sector: sectors){
+//            ((Graphics2D) g).setStroke(new BasicStroke(4));
+//            g.setColor(Color.GREEN);
+//            ((Graphics2D) g).draw(sector);
+//        }
     }
 
     private void drawStates(Graphics g) {
@@ -127,20 +134,22 @@ public class BirdsEyeView extends JPanel implements OrderListener {
         //todo compute size
         Double quantity = (Double) orderImage.getValue(OrderField.QUANTITY);
         int maximumSize = 30;
+        int minimumSize = 4;
         int maximumQuantity = 5000;
         int size = (int) (quantity * maximumSize / maximumQuantity);
-        orderView.setSize(size, size);
+        int finalSize = Math.max(minimumSize, size);
+
+        orderView.setSize(finalSize, finalSize);
         //todo compute location
         try {
-            orderView.setLocation(getRandomLocation(orderImage));
+            orderView.setLocation(getRandomLocation(orderImage, size));
         } catch (Exception ex) {
             orderView.setLocation((int) (Math.random() * getWidth()), (int) (Math.random() * getHeight()));
         }
-        add(orderView);
-        repaint();
+        addOrderView(orderView);
     }
 
-    private Point getRandomLocation(OrderImage orderImage) {
+    private Point getRandomLocation(OrderImage orderImage, int size) {
         Object valueOfGroupingCriteria = orderImage.getValue(groupingCriteria);
         Object orderState = orderImage.getValue(OrderField.STATE);
         Shape slice = groupingSliceShapeMap.get(valueOfGroupingCriteria);
@@ -148,13 +157,14 @@ public class BirdsEyeView extends JPanel implements OrderListener {
         Area sliceArea = new Area(slice);
         Area ellipseArea = new Area(ellipse);
         sliceArea.intersect(ellipseArea);
-
+        sectors.add(sliceArea);
         Rectangle bounds = sliceArea.getBounds();
         while (true) {
             double x = bounds.getX() + Math.random() * bounds.getWidth();
             double y = bounds.getY() + Math.random() * bounds.getHeight();
             Point point = new Point((int) x, (int) y);
-            if (sliceArea.contains(point)) {
+            Rectangle targetedOrderArea = new Rectangle(point,  new Dimension(size, size));
+            if (sliceArea.contains(targetedOrderArea) && !(getComponentAt(point) instanceof OrderView)) {
                 return point;
             }
         }
@@ -162,7 +172,63 @@ public class BirdsEyeView extends JPanel implements OrderListener {
     }
 
     @Override
-    public void orderUpdated(OrderImage orderImage) {
+    public void updateOrder(OrderImage orderImage) {
         //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    private class MouseAdapterImpl extends MouseAdapter {
+        OrderView orderUnderMouse = null;
+        OrderToolTip toolTip = null;
+
+        @Override
+        public void mouseMoved(MouseEvent e) {
+            Component componentUnderMouse = BirdsEyeView.this.getComponentAt(e.getPoint());
+            if (componentUnderMouse instanceof OrderView) {
+                OrderView currentOrderUnderMouse = (OrderView) componentUnderMouse;
+                if (currentOrderUnderMouse != orderUnderMouse) {
+                    hideToolTip();
+
+                    if(orderUnderMouse!=null){
+                        orderUnderMouse.setMouseOver(false);
+                        orderUnderMouse.repaint();
+                    }
+
+                    orderUnderMouse = currentOrderUnderMouse;
+                    orderUnderMouse.setMouseOver(true);
+                    orderUnderMouse.repaint();
+
+                    toolTip = new OrderToolTip(orderUnderMouse.getOrderImage());
+                    BirdsEyeView.this.add(toolTip, -1);
+                    Point location = orderUnderMouse.getLocation();
+                    Point toolTipLocation = new Point();
+                    toolTip.setSize(300, 200);
+                    int prefLocation_x = location.x;
+                    int prefLocation_y = location.y - toolTip.getHeight() - 10;
+                    toolTipLocation.setLocation(Math.min(prefLocation_x, getWidth() - toolTip.getWidth()),
+                            Math.max(prefLocation_y, 0));
+                    toolTip.setLocation(toolTipLocation);
+                    BirdsEyeView.this.validate();
+                    BirdsEyeView.this.repaint();
+                }
+            } else {
+                hideToolTip();
+
+                if (orderUnderMouse != null) {
+                    orderUnderMouse.setMouseOver(false);
+                    orderUnderMouse.repaint();
+                    orderUnderMouse = null;
+                }
+            }
+
+        }
+
+        private void hideToolTip() {
+            if (toolTip != null) {
+                BirdsEyeView.this.remove(toolTip);
+                toolTip = null;
+                BirdsEyeView.this.validate();
+                BirdsEyeView.this.repaint();
+            }
+        }
     }
 }

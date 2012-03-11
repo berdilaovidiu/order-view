@@ -11,5 +11,5 @@ public interface OrderListener {
     
     public void newOrder(OrderImage orderImage);
     
-    public void orderUpdated(OrderImage orderImage);
+    public void updateOrder(OrderImage orderImage);
 }

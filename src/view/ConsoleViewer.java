@@ -24,7 +24,7 @@ public class ConsoleViewer implements OrderListener{
     }
 
     @Override
-    public void orderUpdated(OrderImage orderImage) {
+    public void updateOrder(OrderImage orderImage) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 }

@@ -2,8 +2,8 @@ package view;
 
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
-import model.Model;
-import simulator.OrderGenerator;
+import model.OrderModel;
+import simulator.UserSimulator;
 
 /**
  * Created by IntelliJ IDEA.
@@ -16,10 +16,10 @@ public class TestBirdsEyeView {
     public static void main(String args[]) {
         final BirdsEyeView view = new BirdsEyeView();
 
-        Model model = new Model();
-        model.addListener(view);
+        OrderModel orderModel = new OrderModel();
+        orderModel.addListener(view);
 
-        Runnable orderGenerator = new OrderGenerator(model);
+        Runnable orderGenerator = new UserSimulator(orderModel);
         Thread generatorThread = new Thread(orderGenerator);
         generatorThread.start();
 
@@ -27,11 +27,9 @@ public class TestBirdsEyeView {
             @Override
             public void run() {
                 JFrame frame = new JFrame("Birds Eye View");
-
                 frame.setContentPane(view);
 
-
-                frame.setSize(800, 800);
+                frame.setSize(700, 700);
                 frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
                 frame.setVisible(true);
             }

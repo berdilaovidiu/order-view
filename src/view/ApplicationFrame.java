@@ -1,7 +1,7 @@
 package view;
 
-import model.Model;
-import simulator.OrderGenerator;
+import model.OrderModel;
+import simulator.UserSimulator;
 
 import javax.swing.*;
 
@@ -12,12 +12,12 @@ import javax.swing.*;
  * Time: 11:55 AM
  * To change this template use File | Settings | File Templates.
  */
-public class ApplicationFrame extends JFrame {
+public class  ApplicationFrame extends JFrame {
     
     private JButton startSimulationButton;
     private JButton stopSimulationButton;
-    private Model model;
-    private OrderGenerator orderGenerator;
+    private OrderModel orderModel;
+    private UserSimulator userSimulator;
 
 
 }
