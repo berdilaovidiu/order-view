@@ -37,6 +37,9 @@ public class BirdsEyeView extends JPanel implements OrderListener {
     private OrderField groupingCriteria = OrderField.COUNTRY;
     private Map<OrderState, Shape> stateShapeMap = new HashMap<OrderState, Shape>();
     private Map<Object, Shape> groupingSliceShapeMap = new TreeMap<Object, Shape>();
+    private static final int MAXIMUM_ORDER_SIZE = 20;
+    private static final int MINIMUM_ORDER_SIZE = 4;
+    private static final int MAXIMUM_ORDER_QUANTITY = 5000;
 
     public BirdsEyeView() {
         setLayout(new BirdsEyeViewLayout());
@@ -127,16 +130,12 @@ public class BirdsEyeView extends JPanel implements OrderListener {
         repaint();
         //todo compute size
         Double quantity = (Double) orderImage.getValue(OrderField.QUANTITY);
-        int maximumSize = 30;
-        int minimumSize = 4;
-        int maximumQuantity = 5000;
-        int size = (int) (quantity * maximumSize / maximumQuantity);
-        int finalSize = Math.max(minimumSize, size);
-
+        int size = (int) (quantity * MAXIMUM_ORDER_SIZE / MAXIMUM_ORDER_QUANTITY);
+        int finalSize = Math.max(MINIMUM_ORDER_SIZE, size);
         orderView.setSize(finalSize, finalSize);
         //todo compute location
         try {
-            orderView.setLocation(getRandomLocation(orderImage, size));
+            orderView.setLocation(getRandomLocation(orderImage, finalSize));
         } catch (Exception ex) {
             orderView.setLocation((int) (Math.random() * getWidth()), (int) (Math.random() * getHeight()));
         }
@@ -144,30 +143,71 @@ public class BirdsEyeView extends JPanel implements OrderListener {
     }
 
     private Point getRandomLocation(OrderImage orderImage, int size) {
-        Object valueOfGroupingCriteria = orderImage.getValue(groupingCriteria);
-        Object orderState = orderImage.getValue(OrderField.STATE);
-        Shape slice = groupingSliceShapeMap.get(valueOfGroupingCriteria);
-        Shape ellipse = stateShapeMap.get(orderState);
-        Area sliceArea = new Area(slice);
-        Area ellipseArea = new Area(ellipse);
-        sliceArea.intersect(ellipseArea);
-        sectors.add(sliceArea);
-        Rectangle bounds = sliceArea.getBounds();
-        while (true) {
-            double x = bounds.getX() + Math.random() * bounds.getWidth();
-            double y = bounds.getY() + Math.random() * bounds.getHeight();
-            Point point = new Point((int) x, (int) y);
-            Rectangle targetedOrderArea = new Rectangle(point,  new Dimension(size, size));
-            if (sliceArea.contains(targetedOrderArea) && !(getComponentAt(point) instanceof OrderView)) {
-                return point;
+        try {
+            Object valueOfGroupingCriteria = orderImage.getValue(groupingCriteria);
+            Object orderState = orderImage.getValue(OrderField.STATE);
+            Shape ellipse;
+            switch ((OrderState) orderState) {
+                case REGISTERED:
+                case PENDING_SENT:
+                    ellipse = stateShapeMap.get(OrderState.REGISTERED);
+                    break;
+                case SENT:
+                case PARTIAL_FILLED:
+                    ellipse = stateShapeMap.get(OrderState.SENT);
+                    break;
+                case FILLED:
+                case OVER_FILLED:
+                    ellipse = stateShapeMap.get(OrderState.FILLED);
+                    break;
+                default:
+                    ellipse = stateShapeMap.get(OrderState.REGISTERED);
             }
+
+            Shape slice = groupingSliceShapeMap.get(valueOfGroupingCriteria);
+            Area sliceArea = new Area(slice);
+            Area ellipseArea = new Area(ellipse);
+            sliceArea.intersect(ellipseArea);
+            sectors.add(sliceArea);
+            Rectangle bounds = sliceArea.getBounds();
+            while (true) {
+                double x = bounds.getX() + Math.random() * bounds.getWidth();
+                double y = bounds.getY() + Math.random() * bounds.getHeight();
+                Point point = new Point((int) x, (int) y);
+                Rectangle targetedOrderArea = new Rectangle(point, new Dimension(size, size));
+                boolean containsOrderArea = sliceArea.contains(targetedOrderArea);
+                boolean instanceOfOrderView = getComponentAt(point) instanceof OrderView;
+                if (containsOrderArea && !instanceOfOrderView) {
+                    return point;
+                }
+//            System.out.println("contains order area = " + containsOrderArea);
+//            System.out.println("instanceOfOrderView = " + instanceOfOrderView);
+//            System.out.println("searching for uncovered area ... " + targetedOrderArea.getBounds() + " in " + sliceArea.getBounds());
+            }
+        } catch (NullPointerException ex) {
+            ex.printStackTrace();
+            return new Point();
         }
 
     }
 
     @Override
     public void updateOrder(OrderImage orderImage) {
-        //To change body of implemented methods use File | Settings | File Templates.
+        //TODO get order view
+        for (Component component : this.getComponents()) {
+            if (component instanceof OrderView) {
+                OrderView orderView = (OrderView) component;
+                OrderState state = (OrderState) orderImage.getValue(OrderField.STATE);
+                if (state.equals(OrderState.SENT) || state.equals(OrderState.FILLED)) {
+                    if (orderView.getOrderImage().getValue(OrderField.ORDER_ID).equals(orderImage.getValue(OrderField.ORDER_ID))) {
+                        orderView.setLocation(getRandomLocation(orderImage, orderView.getSize().width));
+                        repaint();
+                    }
+                }
+                orderView.repaint();
+            }
+        }
+//        System.out.println("orderImage = " + orderImage);
     }
 
     private class MouseAdapterImpl extends MouseAdapter {
@@ -182,7 +222,7 @@ public class BirdsEyeView extends JPanel implements OrderListener {
                 if (currentOrderUnderMouse != orderUnderMouse) {
                     hideToolTip();
 
-                    if(orderUnderMouse!=null){
+                    if (orderUnderMouse != null) {
                         orderUnderMouse.setMouseOver(false);
                         orderUnderMouse.repaint();
                     }

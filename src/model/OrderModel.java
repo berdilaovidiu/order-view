@@ -54,7 +54,7 @@ public class OrderModel {
         }
     }
 
-    public Set<OrderImage> getOrders(){
+    public synchronized Set<OrderImage> getOrders(){
         return new HashSet<OrderImage>(orderMap.values());
     }
 }

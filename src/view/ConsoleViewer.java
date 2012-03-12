@@ -1,10 +1,8 @@
 package view;
 
-import model.OrderField;
+import java.util.Date;
 import model.OrderImage;
 import model.OrderListener;
-
-import java.util.Date;
 
 /**
  * Created by IntelliJ IDEA.
@@ -16,15 +14,13 @@ import java.util.Date;
 public class ConsoleViewer implements OrderListener{
     @Override
     public void newOrder(OrderImage orderImage) {
-        System.out.println( new Date().toString() + "New order : " + orderImage);
-        for(OrderField field : orderImage.getFields()){
-            System.out.print(field + " = " + orderImage.getValue(field) + "   ");
-        }
-        System.out.println();
+        System.out.println( new Date().toString() + " New order : \n" + orderImage);
+
+
     }
 
     @Override
     public void updateOrder(OrderImage orderImage) {
-        //To change body of implemented methods use File | Settings | File Templates.
+        System.out.println( new Date().toString() + " Updated order \n: " + orderImage);
     }
 }

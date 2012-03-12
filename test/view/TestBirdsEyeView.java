@@ -3,6 +3,7 @@ package view;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 import model.OrderModel;
+import simulator.BrokerSimulator;
 import simulator.UserSimulator;
 
 /**
@@ -23,13 +24,17 @@ public class TestBirdsEyeView {
         Thread generatorThread = new Thread(orderGenerator);
         generatorThread.start();
 
+        Runnable brokerSimulatorRunnable = new BrokerSimulator(orderModel);
+        Thread brokerSimulationThread = new Thread(brokerSimulatorRunnable);
+        brokerSimulationThread.start();
+
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
                 JFrame frame = new JFrame("Birds Eye View");
                 frame.setContentPane(view);
 
-                frame.setSize(700, 700);
+                frame.setSize(900, 900);
                 frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
                 frame.setVisible(true);
             }

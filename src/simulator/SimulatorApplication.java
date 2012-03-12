@@ -15,9 +15,9 @@ public class SimulatorApplication {
         OrderModel orderModel = new OrderModel();
         orderModel.addListener(new ConsoleViewer());
 
-        Runnable orderGeneratorRunnable = new UserSimulator(orderModel);
-        Thread orderGeneratorThread = new Thread(orderGeneratorRunnable);
-        orderGeneratorThread.start();
+        Runnable userSimulatorRunnable = new UserSimulator(orderModel);
+        Thread userSimulatorThread = new Thread(userSimulatorRunnable);
+        userSimulatorThread.start();
 
         Runnable brokerSimulatorRunnable = new BrokerSimulator(orderModel);
         Thread brokerSimulationThread = new Thread(brokerSimulatorRunnable);
